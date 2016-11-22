@@ -44,7 +44,8 @@
                                            (if (= chord :rest)
                                              [0]
                                              (map (partial + transposition)
-                                                  chord))}
+                                                  chord)
+                                               )}
                                           curr-params
                                           ))))
                               parts
@@ -555,6 +556,13 @@
 ;;           :events
 ;;           (fn [events] (vec (clojure.core/set (concat events voice-3))))))))))
 
+(defn dissonance-score
+  [intervals]
+  (->> intervals
+       chord/inversion-equivalent-pitchclasses
+       (map default-mapping)
+       (apply +)))
+
 (defn handle-dissonance-fn'
   [limit]
   (fn f
@@ -562,7 +570,7 @@
      (f [] xs))
     ([a b]
      (if (apply-dissonance-filter? b)
-       (chord/reduce-dissonance default-mapping
+       (chord/reduce-dissonance dissonance-score
                                 limit
                                 (chord-seq/merge-chords a b))
        (chord-seq/merge-chords a b)))))
